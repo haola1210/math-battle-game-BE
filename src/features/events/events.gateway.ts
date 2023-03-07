@@ -35,4 +35,13 @@ export class EventsGateway {
       data: undefined,
     };
   }
+
+  @SubscribeMessage(BULLET_ACTION.COLLIDED_OBSTACLE)
+  collidedObstacle(@MessageBody() data: BulletFlyingDTO): WsResponse<unknown> {
+    console.log('recieve event: BULLET_ACTION.COLLIDED_OBSTACLE');
+    return {
+      event: BULLET_ACTION.SYNC_COLLIDED_OBSTACLE,
+      data,
+    };
+  }
 }
