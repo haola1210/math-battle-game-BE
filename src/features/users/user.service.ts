@@ -12,6 +12,7 @@ import { Model, Types } from 'mongoose';
 import { User, UserDocument } from 'src/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { RegisterDTO } from '../auth/interfaces/register.dto';
+import { LoginDTO } from '../auth/interfaces/login.dto';
 
 @Injectable()
 export default class UsersService {
@@ -67,6 +68,28 @@ export default class UsersService {
         throw new ConflictException(JSON.stringify(error.keyValue));
       }
       throw new BadRequestException();
+    }
+  }
+
+  async findAndVerify(loginDTO: LoginDTO) {
+    try {
+      const { username, password } = loginDTO;
+
+      const user = await this.userModel.findOne({ username });
+
+      if (!user) {
+        throw new NotFoundException('User does not exist');
+      }
+
+      const compare = await bcrypt.compare(password, user.password);
+
+      if (!compare) {
+        throw new BadRequestException('Password is not correct');
+      }
+
+      return user;
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -93,8 +93,6 @@ export class AuthGuard implements CanActivate {
         try {
           const request: Request = context.switchToHttp().getRequest();
           //
-          console.log('zo day');
-
           const authorizationHeader: string = request.headers['authorization'];
           if (authorizationHeader) {
             throw new Error();
