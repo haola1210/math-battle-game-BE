@@ -23,9 +23,10 @@ export class AuthGuard implements CanActivate {
 
       const accessToken = authorizationHeader.split(' ')[1];
 
-      if (accessToken) {
+      if (!accessToken) {
         throw new Error();
       }
+
       return accessToken;
     } catch (error) {
       return undefined;
@@ -53,6 +54,7 @@ export class AuthGuard implements CanActivate {
           const request = context.switchToHttp().getRequest();
 
           const AT = this.getAccessToken(request);
+
           if (AT === undefined) {
             throw new ForbiddenException();
           }
