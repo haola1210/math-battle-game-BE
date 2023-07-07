@@ -7,12 +7,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './features/auth/auth.module';
 
 @Module({
-  // providers: [
-  //   {
-  //     provide: APP_GUARD,
-  //     useClass: ProxyGuard,
-  //   },
-  // ],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     CacheModule.registerAsync({
