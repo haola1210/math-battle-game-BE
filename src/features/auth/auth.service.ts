@@ -11,7 +11,7 @@ import { ITokenPayload } from './interfaces/ITokenPayload';
 import { RegisterDTO } from './interfaces/register.dto';
 import { LoginDTO } from './interfaces/login.dto';
 import generateToken from './utils';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -100,6 +100,24 @@ export class AuthService {
     });
   }
 
+  extractRefreshToken(req: Request) {
+    try {
+      const { rt } = req.signedCookies;
+      if (!rt) {
+        throw new ForbiddenException();
+      }
+
+      return rt as string;
+      //
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyRefreshToken(refreshToken: string) {
+    return this.verifyToken(refreshToken, this.RTSecret);
+  }
+
   async register(registerDTO: RegisterDTO) {
     try {
       return this.usersService.createOneUser(registerDTO);
@@ -119,6 +137,30 @@ export class AuthService {
       this.storeRefreshToken(res, refreshToken);
 
       return { accessToken };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async processRefreshToken(req: Request) {
+    try {
+      console.log(`refresh token`);
+      // don't need to check the access token anymore. the guard did
+      const refreshToken = this.extractRefreshToken(req);
+      const user = await this.verifyRefreshToken(refreshToken);
+      const accessToken = await generateToken(
+        {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          username: user.username,
+        },
+        this.ATSecret,
+        { expiresIn: '5m' },
+      );
+
+      return { accessToken };
+      //
     } catch (error) {
       throw error;
     }

@@ -1,4 +1,14 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Post,
+  Req,
+  UseInterceptors,
+} from '@nestjs/common';
+import { WithActiveTokenOnly } from '../auth/decorators/token-meta.decorator';
+import { IAttachedUserRequest } from '../auth/interfaces/IAttachedUserRequest';
+import { ResponsedUser } from './serialized-entities/ResponsedUser';
 import UsersService from './user.service';
 
 @Controller('users')
@@ -13,5 +23,12 @@ export default class UsersController {
   @Post('redis-test-data')
   setRedisTestData() {
     return this.usersService.testRedis('SET');
+  }
+
+  @Get('me')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @WithActiveTokenOnly()
+  async myInfor(@Req() req: IAttachedUserRequest) {
+    return new ResponsedUser(req.user);
   }
 }
