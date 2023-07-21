@@ -32,9 +32,10 @@ export class AuthService {
     try {
       // verify AT
       const decoded = verify(token, secret) as Partial<ITokenPayload>;
-
       // find user
       const user = await this.usersService.getUserById(decoded._id);
+      console.log(user);
+
       if (!user) {
         throw new ForbiddenException();
       }
@@ -49,10 +50,8 @@ export class AuthService {
   async verifyAccessToken(accessToken: string) {
     try {
       const user = await this.verifyToken(accessToken, this.ATSecret);
-      // console.log(user);
       return user;
     } catch (error) {
-      console.log(error.message);
       if (error.name === 'TokenExpiredError') {
         throw new UnauthorizedException();
       }
@@ -151,8 +150,6 @@ export class AuthService {
       const accessToken = await generateToken(
         {
           _id: user._id,
-          name: user.name,
-          email: user.email,
           username: user.username,
         },
         this.ATSecret,

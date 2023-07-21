@@ -4,13 +4,19 @@ import {
   Get,
   Post,
   Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { WithActiveTokenOnly } from '../auth/decorators/token-meta.decorator';
+import {
+  Public,
+  WithActiveTokenOnly,
+} from '../auth/decorators/token-meta.decorator';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { IAttachedUserRequest } from '../auth/interfaces/IAttachedUserRequest';
 import { ResponsedUser } from './serialized-entities/ResponsedUser';
 import UsersService from './user.service';
-
+@UseGuards(AuthGuard)
+@Public()
 @Controller('users')
 export default class UsersController {
   constructor(private usersService: UsersService) {}
