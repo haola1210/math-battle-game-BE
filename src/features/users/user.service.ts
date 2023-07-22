@@ -39,8 +39,6 @@ export default class UsersService {
       //   return cachedUser;
       // }
 
-      console.log(id);
-
       const user = await this.userModel.findById(id);
 
       console.log(user);
@@ -55,7 +53,6 @@ export default class UsersService {
       return user;
       //
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
