@@ -1,7 +1,18 @@
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { WithoutTokenOnly } from './decorators/token-meta.decorator';
+import {
+  WithExpiredTokenOnly,
+  WithoutTokenOnly,
+} from './decorators/token-meta.decorator';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginDTO } from './interfaces/login.dto';
 import { RegisterDTO } from './interfaces/register.dto';
@@ -9,12 +20,12 @@ import { RegisterDTO } from './interfaces/register.dto';
 @UseGuards(AuthGuard)
 @Controller('auth')
 export class AuthController {
-  constructor(private authSerivce: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @WithoutTokenOnly()
   @Post(`register`)
   async register(@Body() registerDTO: RegisterDTO) {
-    return this.authSerivce.register(registerDTO);
+    return this.authService.register(registerDTO);
   }
 
   @WithoutTokenOnly()
@@ -23,6 +34,12 @@ export class AuthController {
     @Body() loginDTO: LoginDTO,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.authSerivce.login(loginDTO, res);
+    return this.authService.login(loginDTO, res);
+  }
+
+  @WithExpiredTokenOnly()
+  @Get('refresh-token')
+  async refreshToken(@Req() req: Request) {
+    return this.authService.processRefreshToken(req);
   }
 }

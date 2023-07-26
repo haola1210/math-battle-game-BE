@@ -33,6 +33,7 @@ export default class UsersService {
       const cachedUser = await this.cacheManager.get<UserDocument>(
         `USER_ID_${id}`,
       );
+
       if (cachedUser) {
         console.log('user from cache');
         return cachedUser;
@@ -48,7 +49,6 @@ export default class UsersService {
       await this.cacheManager.set(`USER_ID_${id}`, user);
 
       return user;
-      //
     } catch (error) {
       throw error;
     }

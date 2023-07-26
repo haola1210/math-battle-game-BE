@@ -19,7 +19,7 @@ import { AuthModule } from './features/auth/auth.module';
             host: config.get('REDIS_HOST'),
             port: +config.get('REDIS_PORT'),
           },
-          password: config.get('REDIS_PASSWORD'),
+          password: config.get('REDIS_PWD'),
         });
         return {
           store: store as unknown as CacheStore,

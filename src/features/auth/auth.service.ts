@@ -11,7 +11,7 @@ import { ITokenPayload } from './interfaces/ITokenPayload';
 import { RegisterDTO } from './interfaces/register.dto';
 import { LoginDTO } from './interfaces/login.dto';
 import generateToken from './utils';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -32,9 +32,10 @@ export class AuthService {
     try {
       // verify AT
       const decoded = verify(token, secret) as Partial<ITokenPayload>;
-
       // find user
       const user = await this.usersService.getUserById(decoded._id);
+      console.log(user);
+
       if (!user) {
         throw new ForbiddenException();
       }
@@ -49,10 +50,8 @@ export class AuthService {
   async verifyAccessToken(accessToken: string) {
     try {
       const user = await this.verifyToken(accessToken, this.ATSecret);
-      // console.log(user);
       return user;
     } catch (error) {
-      console.log(error.message);
       if (error.name === 'TokenExpiredError') {
         throw new UnauthorizedException();
       }
@@ -100,6 +99,24 @@ export class AuthService {
     });
   }
 
+  extractRefreshToken(req: Request) {
+    try {
+      const { rt } = req.signedCookies;
+      if (!rt) {
+        throw new ForbiddenException();
+      }
+
+      return rt as string;
+      //
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyRefreshToken(refreshToken: string) {
+    return this.verifyToken(refreshToken, this.RTSecret);
+  }
+
   async register(registerDTO: RegisterDTO) {
     try {
       return this.usersService.createOneUser(registerDTO);
@@ -119,6 +136,28 @@ export class AuthService {
       this.storeRefreshToken(res, refreshToken);
 
       return { accessToken };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async processRefreshToken(req: Request) {
+    try {
+      console.log(`refresh token`);
+      // don't need to check the access token anymore. the guard did
+      const refreshToken = this.extractRefreshToken(req);
+      const user = await this.verifyRefreshToken(refreshToken);
+      const accessToken = await generateToken(
+        {
+          _id: user._id,
+          username: user.username,
+        },
+        this.ATSecret,
+        { expiresIn: '5m' },
+      );
+
+      return { accessToken };
+      //
     } catch (error) {
       throw error;
     }
