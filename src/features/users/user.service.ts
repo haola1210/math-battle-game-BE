@@ -30,28 +30,25 @@ export default class UsersService {
 
   async getUserById(id: Types.ObjectId) {
     try {
-      // const cachedUser = await this.cacheManager.get<UserDocument>(
-      //   `USER_ID_${id}`,
-      // );
+      const cachedUser = await this.cacheManager.get<UserDocument>(
+        `USER_ID_${id}`,
+      );
 
-      // if (cachedUser) {
-      //   console.log('user from cache');
-      //   return cachedUser;
-      // }
+      if (cachedUser) {
+        console.log('user from cache');
+        return cachedUser;
+      }
 
       const user = await this.userModel.findById(id);
-
-      console.log(user);
 
       if (!user) {
         throw new NotFoundException();
       }
 
       console.log('user from db, cache this now');
-      // await this.cacheManager.set(`USER_ID_${id}`, user);
+      await this.cacheManager.set(`USER_ID_${id}`, user);
 
       return user;
-      //
     } catch (error) {
       throw error;
     }
