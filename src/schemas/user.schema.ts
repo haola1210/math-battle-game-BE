@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+import { TEAM_ENUM } from 'src/consts/team.enum';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -26,6 +27,12 @@ export class User {
 
   @Prop({})
   noKilled: number;
+
+  @Prop()
+  room_id: Types.ObjectId;
+
+  @Prop({})
+  team: TEAM_ENUM;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

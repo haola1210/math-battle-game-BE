@@ -1,15 +1,19 @@
 import { Exclude } from 'class-transformer';
 import { Types } from 'mongoose';
-import { UserDocument } from 'src/schemas/user.schema';
+import { TEAM_ENUM } from 'src/consts/team.enum';
 
 export class ResponsedUser {
   _id: Types.ObjectId;
 
-  name: string;
-
   username: string;
 
-  email: string;
+  noWin: number;
+
+  noKilled: number;
+
+  room_id: Types.ObjectId;
+
+  team: TEAM_ENUM;
 
   @Exclude()
   password: string;

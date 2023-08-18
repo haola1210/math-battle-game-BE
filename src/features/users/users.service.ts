@@ -13,6 +13,7 @@ import { User, UserDocument } from 'src/schemas/user.schema';
 import * as bcrypt from 'bcrypt';
 import { RegisterDTO } from '../auth/interfaces/register.dto';
 import { LoginDTO } from '../auth/interfaces/login.dto';
+import { TEAM_ENUM } from 'src/consts/team.enum';
 
 @Injectable()
 export default class UsersService {
@@ -35,7 +36,6 @@ export default class UsersService {
       );
 
       if (cachedUser) {
-        console.log('user from cache');
         return cachedUser;
       }
 
@@ -45,7 +45,6 @@ export default class UsersService {
         throw new NotFoundException();
       }
 
-      console.log('user from db, cache this now');
       await this.cacheManager.set(`USER_ID_${id}`, user);
 
       return user;
@@ -91,5 +90,20 @@ export default class UsersService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async updateUserRoom(id: Types.ObjectId, room_id: Types.ObjectId) {
+    console.log({ id });
+
+    const res = await this.userModel.findByIdAndUpdate(id, {
+      room_id,
+      team: TEAM_ENUM.ONE,
+    });
+    return res;
+  }
+
+  async findUserByTeamId(team_id: Types.ObjectId) {
+    const users = await this.userModel.find({ team_id });
+    return users;
   }
 }
