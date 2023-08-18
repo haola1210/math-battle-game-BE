@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { verify } from 'jsonwebtoken';
-import UsersService from '../users/user.service';
+import UsersService from '../users/users.service';
 import { ITokenPayload } from './interfaces/ITokenPayload';
 import { RegisterDTO } from './interfaces/register.dto';
 import { LoginDTO } from './interfaces/login.dto';
@@ -34,7 +34,7 @@ export class AuthService {
       const decoded = verify(token, secret) as Partial<ITokenPayload>;
       // find user
       const user = await this.usersService.getUserById(decoded._id);
-      console.log(user);
+      user;
 
       if (!user) {
         throw new ForbiddenException();
@@ -76,7 +76,7 @@ export class AuthService {
   async generaTokens(data: ITokenPayload) {
     try {
       const [AT, RT] = await Promise.all([
-        generateToken(data, this.ATSecret, { expiresIn: '5m' }),
+        generateToken(data, this.ATSecret, { expiresIn: '20m' }),
         generateToken({ _id: data._id }, this.RTSecret, { expiresIn: '7d' }),
       ]);
 

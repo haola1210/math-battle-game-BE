@@ -5,6 +5,7 @@ import UsersModule from './features/users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './features/auth/auth.module';
+import RoomsModule from './features/rooms/rooms.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AuthModule } from './features/auth/auth.module';
     EventsModule,
     UsersModule,
     AuthModule,
+    RoomsModule,
   ],
 })
 export class AppModule {}
