@@ -153,7 +153,7 @@ export class AuthService {
           username: user.username,
         },
         this.ATSecret,
-        { expiresIn: '5m' },
+        { expiresIn: '10h' },
       );
 
       return { accessToken };
