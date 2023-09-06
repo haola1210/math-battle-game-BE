@@ -11,7 +11,6 @@ export class RoomsController {
   @WithActiveTokenOnly()
   @Get('/list')
   async getRoomList() {
-    console.log(await this.roomsServices.getRoomList());
     return await this.roomsServices.getRoomList();
   }
 }

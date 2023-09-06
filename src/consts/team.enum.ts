@@ -1,4 +1,4 @@
 export enum TEAM_ENUM {
-  ONE = '1',
-  TWO = '2',
+  ONE = 1,
+  TWO = 2,
 }

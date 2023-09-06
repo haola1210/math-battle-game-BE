@@ -7,13 +7,13 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 import { Cache } from 'cache-manager';
 import { Model, Types } from 'mongoose';
-import { User, UserDocument } from 'src/schemas/user.schema';
-import * as bcrypt from 'bcrypt';
-import { RegisterDTO } from '../auth/interfaces/register.dto';
-import { LoginDTO } from '../auth/interfaces/login.dto';
 import { TEAM_ENUM } from 'src/consts/team.enum';
+import { User, UserDocument } from 'src/schemas/user.schema';
+import { LoginDTO } from '../auth/interfaces/login.dto';
+import { RegisterDTO } from '../auth/interfaces/register.dto';
 
 @Injectable()
 export default class UsersService {
@@ -92,13 +92,19 @@ export default class UsersService {
     }
   }
 
-  async updateUserRoom(id: Types.ObjectId, room_id: Types.ObjectId) {
-    console.log({ id });
+  async updateUserRoom(
+    id: Types.ObjectId,
+    room_id: Types.ObjectId,
+    team: TEAM_ENUM,
+  ) {
+    const res = await this.userModel
+      .findByIdAndUpdate(id, {
+        room_id: new Types.ObjectId(room_id),
+        team,
+      })
+      .select('-password')
+      .exec();
 
-    const res = await this.userModel.findByIdAndUpdate(id, {
-      room_id,
-      team: TEAM_ENUM.ONE,
-    });
     return res;
   }
 
