@@ -66,8 +66,6 @@ export class RoomEventsGateway {
     { user_id, room_id }: { user_id: Types.ObjectId; room_id: Types.ObjectId },
   ) {
     try {
-      console.log('------join romm');
-
       const selectedRoom = await this.roomService.findRoomById(room_id);
       if (selectedRoom) {
         // if length === 4 => room is full
@@ -82,50 +80,32 @@ export class RoomEventsGateway {
           const count = selectedRoom.users.filter(
             (item) => item.team === TEAM_ENUM.ONE,
           ).length;
-          console.log('------selected romm', selectedRoom);
 
-          if (count < 2) {
-            const userUpdated = await this.userService.updateUserRoom(
-              user_id,
-              room_id,
-              TEAM_ENUM.ONE,
-            );
+          const userUpdated = await this.userService.updateUserRoom(
+            user_id,
+            room_id,
+            count >= 2 ? TEAM_ENUM.TWO : TEAM_ENUM.ONE,
+          );
 
-            const roomAfterUpdated = await this.roomService.findRoomById(
-              new Types.ObjectId(selectedRoom._id),
-            );
+          const roomAfterUpdated = await this.roomService.findRoomById(
+            new Types.ObjectId(selectedRoom._id),
+          );
 
-            client.join(room_id.toString());
+          client.join(room_id.toString());
 
-            this.server
-              .to(room_id.toString())
-              .emit(USER_ACTION.JOIN_ROOM_FEEDBACK_ROOM, {
-                user_joined: userUpdated,
-                room: roomAfterUpdated,
-                message: SOCKET_MESSAGE.JOIN_ROOM_SUCCESS,
-              });
-
-            this.server.emit(USER_ACTION.JOIN_ROOM_FEEDBACK_LOBBY, {
-              room: roomAfterUpdated,
+          this.server
+            .to(room_id.toString())
+            .emit(USER_ACTION.JOIN_ROOM_FEEDBACK_ROOM, {
               user_joined: userUpdated,
-              message: USER_ACTION.USER_JOIN_ROOM,
+              room: roomAfterUpdated,
+              message: SOCKET_MESSAGE.JOIN_ROOM_SUCCESS,
             });
-          } else {
-            const userUpdated = await this.userService.updateUserRoom(
-              user_id,
-              room_id,
-              TEAM_ENUM.TWO,
-            );
 
-            return {
-              event: USER_ACTION.CREATE_ROOM_FEEDBACK,
-              data: {
-                user_joined: userUpdated,
-                room: selectedRoom,
-                message: SOCKET_MESSAGE.JOIN_ROOM_SUCCESS,
-              },
-            };
-          }
+          this.server.emit(USER_ACTION.JOIN_ROOM_FEEDBACK_LOBBY, {
+            room: roomAfterUpdated,
+            user_joined: userUpdated,
+            message: USER_ACTION.USER_JOIN_ROOM,
+          });
         }
       }
     } catch (error) {

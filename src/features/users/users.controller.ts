@@ -15,6 +15,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { IAttachedUserRequest } from '../auth/interfaces/IAttachedUserRequest';
 import { ResponsedUser } from './serialized-entities/ResponsedUser';
 import UsersService from './users.service';
+
 @UseGuards(AuthGuard)
 @Public()
 @Controller('users')

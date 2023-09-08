@@ -28,7 +28,7 @@ export class RoomsService {
     return res;
   }
 
-  async findRoomById(id: Types.ObjectId) {
+  async findRoomById(id: Types.ObjectId | string) {
     const res = await this.roomModel.aggregate([
       {
         $match: {

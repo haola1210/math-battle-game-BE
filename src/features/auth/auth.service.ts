@@ -34,7 +34,6 @@ export class AuthService {
       const decoded = verify(token, secret) as Partial<ITokenPayload>;
       // find user
       const user = await this.usersService.getUserById(decoded._id);
-      user;
 
       if (!user) {
         throw new ForbiddenException();
@@ -76,7 +75,7 @@ export class AuthService {
   async generaTokens(data: ITokenPayload) {
     try {
       const [AT, RT] = await Promise.all([
-        generateToken(data, this.ATSecret, { expiresIn: '20m' }),
+        generateToken(data, this.ATSecret, { expiresIn: '7d' }),
         generateToken({ _id: data._id }, this.RTSecret, { expiresIn: '7d' }),
       ]);
 
@@ -153,12 +152,13 @@ export class AuthService {
           username: user.username,
         },
         this.ATSecret,
-        { expiresIn: '10h' },
+        { expiresIn: '7d' },
       );
 
       return { accessToken };
       //
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }

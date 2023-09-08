@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { WithActiveTokenOnly } from '../auth/decorators/token-meta.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RoomsService } from './rooms.service';
@@ -12,5 +12,11 @@ export class RoomsController {
   @Get('/list')
   async getRoomList() {
     return await this.roomsServices.getRoomList();
+  }
+
+  @WithActiveTokenOnly()
+  @Get('/info/:id')
+  async getRoomInfo(@Param() { id }: { id: string }) {
+    return await this.roomsServices.findRoomById(id);
   }
 }
