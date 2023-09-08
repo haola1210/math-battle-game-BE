@@ -75,6 +75,7 @@ export class AuthGuard implements CanActivate {
       //#region
       case AUTH_TOKEN_META.WITH_EXPIRED_TOKEN_ONLY: {
         try {
+          console.log('token expired');
           const request = context.switchToHttp().getRequest();
 
           const AT = this.getAccessToken(request);
@@ -85,6 +86,7 @@ export class AuthGuard implements CanActivate {
           return this.authService.isTokenExpired(AT);
           //
         } catch (error) {
+          console.log(error);
           return false;
         }
       }
