@@ -17,6 +17,8 @@ export class RoomsController {
   @WithActiveTokenOnly()
   @Get('/info/:id')
   async getRoomInfo(@Param() { id }: { id: string }) {
-    return await this.roomsServices.findRoomById(id);
+    const res = await this.roomsServices.findRoomById(id);
+
+    return res;
   }
 }

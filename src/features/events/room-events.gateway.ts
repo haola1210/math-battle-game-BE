@@ -42,7 +42,8 @@ export class RoomEventsGateway {
         room._id,
         TEAM_ENUM.ONE,
       );
-      client.join(room._id);
+
+      client.join(room._id.toString());
 
       if (userUpdated && room) {
         this.server.emit(USER_ACTION.CREATE_ROOM_FEEDBACK, {
