@@ -77,4 +77,9 @@ export class RoomsService {
 
     return roomList as unknown as IRoom[];
   }
+
+  async deleteRoom(room_id: Types.ObjectId) {
+    const deletedRoom = await this.roomModel.findByIdAndDelete(room_id);
+    return deletedRoom;
+  }
 }
