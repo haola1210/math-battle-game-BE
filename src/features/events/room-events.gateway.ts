@@ -42,7 +42,8 @@ export class RoomEventsGateway {
         room._id,
         TEAM_ENUM.ONE,
       );
-      client.join(room._id);
+
+      client.join(room._id.toString());
 
       if (userUpdated && room) {
         this.server.emit(USER_ACTION.CREATE_ROOM_FEEDBACK, {
@@ -115,5 +116,28 @@ export class RoomEventsGateway {
         message: SOCKET_MESSAGE.JOIN_ROOM_ERROR,
       };
     }
+  }
+
+  @SubscribeMessage(USER_ACTION.LEAVE_ROOM)
+  async leaveRoom(
+    @ConnectedSocket()
+    client: Socket,
+    @MessageBody()
+    { user_id, room_id }: { user_id: Types.ObjectId; room_id: Types.ObjectId },
+  ) {
+    try {
+      const selectedRoom = await this.roomService.findRoomById(room_id);
+      if (selectedRoom.users.length === 1) {
+        const deletedRoom = await this.roomService.deleteRoom(room_id);
+        const updatedUser = await this.userService.updateUserRoom(
+          user_id,
+          undefined,
+          undefined,
+        );
+
+        this.server.to(room_id.toString()).emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_ROOM. {updated_user: updatedUser});
+        client.leave(room_id.toString());
+      }
+    } catch (error) {}
   }
 }

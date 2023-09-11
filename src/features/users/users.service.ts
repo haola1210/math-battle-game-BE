@@ -94,12 +94,12 @@ export default class UsersService {
 
   async updateUserRoom(
     id: Types.ObjectId,
-    room_id: Types.ObjectId,
-    team: TEAM_ENUM,
+    room_id?: Types.ObjectId,
+    team?: TEAM_ENUM,
   ) {
     const res = await this.userModel
       .findByIdAndUpdate(id, {
-        room_id: new Types.ObjectId(room_id),
+        room_id: room_id ? new Types.ObjectId(room_id) : undefined,
         team,
       })
       .select('-password')

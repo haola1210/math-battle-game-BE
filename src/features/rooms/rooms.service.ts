@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ClassSerializerInterceptor,
   Injectable,
   UseInterceptors,
@@ -29,28 +30,32 @@ export class RoomsService {
   }
 
   async findRoomById(id: Types.ObjectId | string) {
-    const res = await this.roomModel.aggregate([
-      {
-        $match: {
-          _id: new Types.ObjectId(id),
+    try {
+      const res = await this.roomModel.aggregate([
+        {
+          $match: {
+            _id: new Types.ObjectId(id),
+          },
         },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: 'room_id',
-          as: 'users',
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: 'room_id',
+            as: 'users',
+          },
         },
-      },
-      {
-        $project: {
-          'users.password': 0,
+        {
+          $project: {
+            'users.password': 0,
+          },
         },
-      },
-    ]);
+      ]);
 
-    return res[0] as unknown as IRoom;
+      return res[0] as unknown as IRoom;
+    } catch (error) {
+      throw new BadRequestException();
+    }
   }
 
   async getRoomList() {
@@ -71,5 +76,10 @@ export class RoomsService {
     ]);
 
     return roomList as unknown as IRoom[];
+  }
+
+  async deleteRoom(room_id: Types.ObjectId) {
+    const deletedRoom = await this.roomModel.findByIdAndDelete(room_id);
+    return deletedRoom;
   }
 }
