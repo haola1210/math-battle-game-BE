@@ -29,6 +29,20 @@ export class RoomsService {
     return res;
   }
 
+  async updateRoom(room_id: Types.ObjectId, owner?: ResponsedUser) {
+    const payload: any = {};
+
+    if (owner) {
+      payload.owner = owner;
+    }
+
+    const res = await this.roomModel
+      .findByIdAndUpdate(new Types.ObjectId(room_id), payload)
+      .exec();
+
+    return res;
+  }
+
   async findRoomById(id: Types.ObjectId | string) {
     try {
       const res = await this.roomModel.aggregate([

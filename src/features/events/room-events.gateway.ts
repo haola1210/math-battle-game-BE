@@ -128,16 +128,86 @@ export class RoomEventsGateway {
     try {
       const selectedRoom = await this.roomService.findRoomById(room_id);
       if (selectedRoom.users.length === 1) {
-        const deletedRoom = await this.roomService.deleteRoom(room_id);
+        const updateRoom = await this.roomService.deleteRoom(room_id);
         const updatedUser = await this.userService.updateUserRoom(
           user_id,
           undefined,
           undefined,
         );
 
-        this.server.to(room_id.toString()).emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_ROOM. {updated_user: updatedUser});
+        this.server
+          .to(room_id.toString())
+          .emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_ROOM, {
+            leave_user: updatedUser,
+            room: updateRoom,
+            message: SOCKET_MESSAGE.LAST_PERSON_LEAVE_ROOM,
+          });
+
+        this.server.emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_LOBBY, {
+          room: updateRoom,
+          message: SOCKET_MESSAGE.LAST_PERSON_LEAVE_ROOM,
+        });
+
         client.leave(room_id.toString());
+      } else {
+        // out room is owner, next owner is next user
+        if (user_id.toString() === selectedRoom.owner._id.toString()) {
+          const nextOwners = selectedRoom.users.filter(
+            (item) => item._id.toString() !== user_id.toString(),
+          );
+
+          const updateRoom = await this.roomService.updateRoom(
+            room_id,
+            nextOwners[0],
+          );
+          const updatedUser = await this.userService.updateUserRoom(
+            user_id,
+            undefined,
+            undefined,
+          );
+          this.server
+            .to(room_id.toString())
+            .emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_ROOM, {
+              leave_user: updatedUser,
+              room: updateRoom,
+              message: SOCKET_MESSAGE.OWNER_LEAVE_ROOM,
+            });
+
+          this.server.emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_LOBBY, {
+            room: updateRoom,
+            message: SOCKET_MESSAGE.OWNER_LEAVE_ROOM,
+          });
+          client.leave(room_id.toString());
+        } else {
+          const updateRoom = await this.roomService.findRoomById(room_id);
+
+          const updatedUser = await this.userService.updateUserRoom(
+            user_id,
+            undefined,
+            undefined,
+          );
+
+          this.server
+            .to(room_id.toString())
+            .emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_ROOM, {
+              leave_user: updatedUser,
+              room: updateRoom,
+              message: SOCKET_MESSAGE.ROOMMATE_LEAVE_ROOM,
+            });
+
+          this.server.emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_LOBBY, {
+            room: updateRoom,
+            message: SOCKET_MESSAGE.ROOMMATE_LEAVE_ROOM,
+          });
+
+          client.leave(room_id.toString());
+        }
       }
-    } catch (error) {}
+    } catch (error) {
+      return {
+        event: USER_ACTION.LEAVE_ROOM_ERROR,
+        error,
+      };
+    }
   }
 }
