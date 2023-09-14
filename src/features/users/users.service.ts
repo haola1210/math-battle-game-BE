@@ -127,4 +127,16 @@ export default class UsersService {
     const users = await this.userModel.find({ team_id });
     return users;
   }
+
+  async updateUserTeam(user_id: Types.ObjectId, team: TEAM_ENUM) {
+    const res = await this.userModel.findByIdAndUpdate(
+      user_id,
+      {
+        team,
+      },
+      { new: true },
+    );
+
+    return res;
+  }
 }
