@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { TEAM_ENUM } from 'src/consts/team.enum';
 import { Room, RoomDocument } from 'src/schemas/room.shema';
 import { ResponsedUser } from '../users/serialized-entities/ResponsedUser';
 import UsersService from '../users/users.service';

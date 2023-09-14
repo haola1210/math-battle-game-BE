@@ -200,4 +200,40 @@ export class RoomEventsGateway {
       };
     }
   }
+
+  @SubscribeMessage(USER_ACTION.USER_CHANGE_TEAM)
+  async changeTeam(
+    @ConnectedSocket()
+    client: Socket,
+    @MessageBody()
+    {
+      user_id,
+      team,
+      room_id,
+    }: { user_id: Types.ObjectId; room_id: Types.ObjectId; team: TEAM_ENUM },
+  ) {
+    try {
+      const updateUserTeam = await this.userService.updateUserTeam(
+        user_id,
+        team,
+      );
+
+      console.log({ updateUserTeam });
+
+      console.log(room_id.toString());
+
+      console.log(this.server.sockets.adapter.rooms.get(room_id.toString()));
+
+      this.server
+        .to(room_id.toString())
+        .emit(USER_ACTION.USER_CHANGE_TEAM_FEEDBACK, {
+          user: updateUserTeam,
+        });
+    } catch (error) {
+      return {
+        event: USER_ACTION.USER_CHANGE_TEAM_ERROR,
+        error,
+      };
+    }
+  }
 }
