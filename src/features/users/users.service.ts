@@ -94,13 +94,28 @@ export default class UsersService {
 
   async updateUserRoom(
     id: Types.ObjectId,
-    room_id?: Types.ObjectId,
+    room_id: Types.ObjectId,
     team?: TEAM_ENUM,
   ) {
     const res = await this.userModel
-      .findByIdAndUpdate(id, {
-        room_id: room_id ? new Types.ObjectId(room_id) : undefined,
-        team,
+      .findByIdAndUpdate(
+        id,
+        {
+          room_id: new Types.ObjectId(room_id),
+          team,
+        },
+        { new: true },
+      )
+      .select('-password')
+      .exec();
+
+    return res;
+  }
+
+  async userOutRoom(user_id: Types.ObjectId) {
+    const res = await this.userModel
+      .findByIdAndUpdate(user_id, {
+        $unset: { room_id: 1, team: 1 },
       })
       .select('-password')
       .exec();

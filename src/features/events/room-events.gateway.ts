@@ -129,11 +129,7 @@ export class RoomEventsGateway {
       const selectedRoom = await this.roomService.findRoomById(room_id);
       if (selectedRoom.users.length === 1) {
         const updateRoom = await this.roomService.deleteRoom(room_id);
-        const updatedUser = await this.userService.updateUserRoom(
-          user_id,
-          undefined,
-          undefined,
-        );
+        const updatedUser = await this.userService.userOutRoom(user_id);
 
         this.server
           .to(room_id.toString())
@@ -156,15 +152,13 @@ export class RoomEventsGateway {
             (item) => item._id.toString() !== user_id.toString(),
           );
 
+          const updatedUser = await this.userService.userOutRoom(user_id);
+
           const updateRoom = await this.roomService.updateRoom(
             room_id,
             nextOwners[0],
           );
-          const updatedUser = await this.userService.updateUserRoom(
-            user_id,
-            undefined,
-            undefined,
-          );
+
           this.server
             .to(room_id.toString())
             .emit(USER_ACTION.LEAVE_ROOM_FEEDBACK_ROOM, {
@@ -181,11 +175,7 @@ export class RoomEventsGateway {
         } else {
           const updateRoom = await this.roomService.findRoomById(room_id);
 
-          const updatedUser = await this.userService.updateUserRoom(
-            user_id,
-            undefined,
-            undefined,
-          );
+          const updatedUser = await this.userService.userOutRoom(user_id);
 
           this.server
             .to(room_id.toString())
