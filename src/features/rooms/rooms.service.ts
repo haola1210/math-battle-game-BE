@@ -36,9 +36,11 @@ export class RoomsService {
       payload.owner = owner;
     }
 
-    const res = await this.roomModel
+    const updateRoom = await this.roomModel
       .findByIdAndUpdate(new Types.ObjectId(room_id), payload)
       .exec();
+
+    const res = await this.findRoomById(updateRoom._id);
 
     return res;
   }
